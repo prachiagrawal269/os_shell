@@ -1,9 +1,22 @@
 #include "header.h"
 
-<<<<<<< HEAD
-=======
+void printprompt()
+{
+	char hostname[HOST_NAME_MAXX+1];
+	char login[LOGIN_NAME_MAXX];
 
->>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
+	// null-terminated regardless
+	hostname[HOST_NAME_MAXX] = 0;
+	login[LOGIN_NAME_MAXX-1] = 0;
+
+	gethostname( hostname, HOST_NAME_MAXX );
+	getlogin_r( login, LOGIN_NAME_MAXX );
+
+	// <username>@<hostname>:)
+	fprintf( stdout, "%s@%s:", login, hostname);
+	fflush( stdout );
+}
+
 char *get_input(void)
 {
 	int c,position;
@@ -79,7 +92,6 @@ char **split_input2(char *line)
 	return tokens;
 }
 
-<<<<<<< HEAD
 char **split_input3(char *line)
 {
 	char **tokens=malloc(TOKEN_LIMIT * sizeof(char*));
@@ -120,8 +132,6 @@ char **split_input3(char *line)
 	return tokens;
 }
 
-=======
->>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 char **split_input1(char *line)
 {
 	char **tokens=malloc(TOKEN_LIMIT * sizeof(char*));
@@ -154,7 +164,7 @@ char **split_input1(char *line)
 	tokens[position]=NULL;
 	return tokens;
 }
-<<<<<<< HEAD
+
 
 void loop_pipe(char **line)
 {
@@ -209,30 +219,6 @@ int pipe_func(int in, int out, char *line)
 	}
 	return pid;
 }
-=======
-void execute_cd(char **comm)
-{
-	int flag=0;
-	char h[2]={'~', '\0'};
-	if(comm[1]!=NULL)
-	{
-		if(strcmp(comm[1],h)!=0)
-		{
-			if(chdir(comm[1])!=0)
-				perror("myshell:");
-		}
-		else
-			flag=1;		
-	}
-	else 
-	{
-		if(chdir(home)!=0)
-			perror("myshell:");
-	}
-}
-
-
->>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 void execute_echoo(char **comm)
 {
 //	if(args[1]==NULL)
@@ -260,7 +246,6 @@ void execute_echoo(char **comm)
 		printf("\n");
 }
 
-<<<<<<< HEAD
 void execute_internal(int fl)
 {
 	
@@ -313,29 +298,44 @@ void execute_cd(char **comm)
 
 
 
-=======
->>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
-void statuss(int idd)
+void statuss(int idd,int flag)
 {
+	// if flag==1, execute pinfo
+	// if flag==0, print process name
 	FILE *fp;
 	int myint,ll,size,t;
 	int len;
 	char s1[1024];
 	ll=11;
 	char status[100];
+	char name[1000];
 	int BUFFERSIZE=1000;
 	char *buf=malloc(10000);
 	char path[1000];
 	char pathexe[1000];
-	printf("Pid: %d\n",idd);
 	sprintf(path,"/proc/%d/status",idd);
 	sprintf(pathexe,"/proc/%d/smaps",idd);
+//	printf("flag: %d\n",flag);
 	if((fp = fopen(path,"r"))){
+	//	printf("if\n");
 		fgets(buf, BUFFERSIZE, fp);
 		fgets(buf, BUFFERSIZE, fp);
-		sscanf(buf,"State:\t%s",status);
+		if(flag==1)
+			sscanf(buf,"State:\t%s",status);
+		else
+		{
+	//		printf("else\n");
+			sscanf(buf,"Name:\t%s",name);
+	//		printf("name: %s\n",name);
+		}
+	//	printf("name: %s\n",name);
 //		printf("buff: %s",buf);	
-		printf("Status: %s\n",status);
+		if(flag==0)
+			printf("%s ",name);
+		else
+		{
+			printf("Pid: %d\n",idd);
+			printf("Status: %s\n",status);
 		while(ll--)
 		{
 			fgets(buf, BUFFERSIZE, fp);
@@ -350,11 +350,7 @@ void statuss(int idd)
 		if(fp=fopen(pathexe, "r"))
 		{
 			fgets(buf, BUFFERSIZE, fp);
-<<<<<<< HEAD
 			sscanf(buf,"%s[^\n]",s1);
-=======
-			sscanf(buf,"%[^\n]",s1);
->>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 			len=strlen(s1);
 			t=0;
 		//	printf("s1: %s\n",s1);
@@ -376,21 +372,9 @@ void statuss(int idd)
 			}
 			printf("\n");
 			}
-			else
-				printf("hello\n");
+		//	else
+		//		printf("hello\n");
 
-<<<<<<< HEAD
 		}
-=======
-//		len=readlink(pathexe, buf, sizeof(buf)-1);
-//		if(len!=-1)
-//		{
-//			buf[len]='\0';
-//			printf("Executable Path: %s\n", buf);
-//		}
-//		else
-//			perror("readlink error\n");
 	}
->>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 }
-
