@@ -19,12 +19,16 @@
 #define DELIM " \t\r\n\a"
 #define TOKEN_LIMIT 1000
 #define PARSE_DELIM ";"
+<<<<<<< HEAD
 #define PIPE_DELIM "|"
+=======
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 
 
 extern int back_mark;
 extern int position;
 extern int pos;
+<<<<<<< HEAD
 extern int ind;
 extern char home[1024];
 extern char cd[3];
@@ -33,15 +37,22 @@ extern char exitt[5];
 extern char echoo[5];
 extern char pwdd[4];
 extern char pathh[1000];
+=======
+extern char home[1024];
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 
 void execute_cd(char **comm);
 void statuss();
 char **split_input1(char *line);
 char **split_input2(char *line);
+<<<<<<< HEAD
 char **split_input3(char *line);
 char *get_input(void);
 void execute_internal(int fl);
 void loop_pipe(char **args);
 int pipe_func(int in, int out, char *line);
 
+=======
+char *get_input(void);
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 #endif

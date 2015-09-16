@@ -1,5 +1,9 @@
 #include "header.h"
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 char *get_input(void)
 {
 	int c,position;
@@ -75,6 +79,7 @@ char **split_input2(char *line)
 	return tokens;
 }
 
+<<<<<<< HEAD
 char **split_input3(char *line)
 {
 	char **tokens=malloc(TOKEN_LIMIT * sizeof(char*));
@@ -115,6 +120,8 @@ char **split_input3(char *line)
 	return tokens;
 }
 
+=======
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 char **split_input1(char *line)
 {
 	char **tokens=malloc(TOKEN_LIMIT * sizeof(char*));
@@ -147,6 +154,7 @@ char **split_input1(char *line)
 	tokens[position]=NULL;
 	return tokens;
 }
+<<<<<<< HEAD
 
 void loop_pipe(char **line)
 {
@@ -201,6 +209,30 @@ int pipe_func(int in, int out, char *line)
 	}
 	return pid;
 }
+=======
+void execute_cd(char **comm)
+{
+	int flag=0;
+	char h[2]={'~', '\0'};
+	if(comm[1]!=NULL)
+	{
+		if(strcmp(comm[1],h)!=0)
+		{
+			if(chdir(comm[1])!=0)
+				perror("myshell:");
+		}
+		else
+			flag=1;		
+	}
+	else 
+	{
+		if(chdir(home)!=0)
+			perror("myshell:");
+	}
+}
+
+
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 void execute_echoo(char **comm)
 {
 //	if(args[1]==NULL)
@@ -228,6 +260,7 @@ void execute_echoo(char **comm)
 		printf("\n");
 }
 
+<<<<<<< HEAD
 void execute_internal(int fl)
 {
 	
@@ -280,6 +313,8 @@ void execute_cd(char **comm)
 
 
 
+=======
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 void statuss(int idd)
 {
 	FILE *fp;
@@ -315,7 +350,11 @@ void statuss(int idd)
 		if(fp=fopen(pathexe, "r"))
 		{
 			fgets(buf, BUFFERSIZE, fp);
+<<<<<<< HEAD
 			sscanf(buf,"%s[^\n]",s1);
+=======
+			sscanf(buf,"%[^\n]",s1);
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 			len=strlen(s1);
 			t=0;
 		//	printf("s1: %s\n",s1);
@@ -340,6 +379,18 @@ void statuss(int idd)
 			else
 				printf("hello\n");
 
+<<<<<<< HEAD
 		}
+=======
+//		len=readlink(pathexe, buf, sizeof(buf)-1);
+//		if(len!=-1)
+//		{
+//			buf[len]='\0';
+//			printf("Executable Path: %s\n", buf);
+//		}
+//		else
+//			perror("readlink error\n");
+	}
+>>>>>>> ede764676e6e5527378b05c16c82a2395d3df4d1
 }
 
