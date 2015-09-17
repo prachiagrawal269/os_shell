@@ -31,6 +31,8 @@ char *get_input(void)
 	}
 	while(1)
 	{
+	//	printf("\ntaking input\n");
+	//	if(backexit!=1)
 		c=getchar();
 		if (c==EOF|| c=='\n')
 		{
@@ -50,6 +52,8 @@ char *get_input(void)
 				exit(EXIT_FAILURE);
 			}
 		}
+	//	else
+	//		break;
 	}
 }
 
@@ -65,6 +69,7 @@ char **split_input2(char *line)
 		fprintf(stderr,"myshell: allocation error\n");
 		exit(EXIT_FAILURE);
 	}
+//	printf("split: %s\n",args_copy[0]);
 	token=strtok(line, DELIM);
 	back_mark=0;
 	while(token!=NULL)
@@ -187,14 +192,28 @@ void loop_pipe(char **line)
 //	if(pid==0)
 //	{
 		arg1=split_input2(line[i]);
-	//printf("arg1: %s\n",arg1[0]);
-		if(execvp(arg1[0],arg1)<0)	
-			perror("myshell");
-		exit(EXIT_FAILURE);
+		if(back_mark==1)
+		{
+//			printf("background\n");
+			setpgid(0,0);
+			if(execvp(args[0],args)<0)
+				perror("myshell");
+			exit(EXIT_FAILURE);
+		}	
+		else
+		{if(strcmp(arg1[0],pinfoo)==0)
+			execute_pinfo(arg1);
+		else
+		{
+			if(execvp(arg1[0],arg1)<0)	
+				perror("myshell");
+			exit(EXIT_FAILURE);
+		}}
 //	}
 //	else
 //		wait(NULL);
 }
+
 int pipe_func(int in, int out, char *line)
 {
 	pid_t pid;
@@ -212,13 +231,31 @@ int pipe_func(int in, int out, char *line)
 			close(out);
 		}
 		arg1=split_input2(line);
-		if(execvp(arg1[0],arg1)<0)
-			perror("myshell");
-		exit(EXIT_FAILURE);
-
+	
+		if(strcmp(arg1[0],pinfoo)==0)
+			execute_pinfo(arg1);
+		else
+		{
+			if(execvp(arg1[0],arg1)<0)
+				perror("myshell");
+			exit(EXIT_FAILURE);
+		}
 	}
 	return pid;
 }
+
+void execute_pinfo(char **line)
+{
+	int ii;
+	//args=split_input2(args[0]);
+	if(line[1]==NULL)
+		ii=getpid();
+	else
+		ii=atoi(line[1]);
+	statuss(ii,1);
+
+}
+
 void execute_echoo(char **comm)
 {
 //	if(args[1]==NULL)
@@ -272,8 +309,10 @@ void execute_internal(int fl)
 		else
 			perror("myshell");
 	}
-
+	else
+		printf("command not found\n");
 }
+
 void execute_cd(char **comm)
 {
 	int flag=0;

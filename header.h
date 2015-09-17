@@ -31,11 +31,13 @@ extern int back_mark;
 extern int position;
 extern int pos;
 extern int ind;
+extern int backexit;
 extern char home[1024];
 extern char cd[3];
 extern char **args;
 extern char exitt[5];
 extern char echoo[5];
+extern char pinfoo[6];
 extern char pwdd[4];
 extern char pathh[1000];
 
@@ -49,5 +51,6 @@ char *get_input(void);
 void execute_internal(int fl);
 void loop_pipe(char **args);
 int pipe_func(int in, int out, char *line);
+void execute_pinfo(char **line);
 
 #endif
