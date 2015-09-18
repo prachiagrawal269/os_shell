@@ -36,12 +36,18 @@ extern char home[1024];
 extern char cd[3];
 extern char **args;
 extern char exitt[5];
+extern char quitt[5];
 extern char echoo[5];
 extern char pinfoo[6];
 extern char pwdd[4];
 extern char pathh[1000];
+extern int in_re;
+extern int out_re;
+extern char infile[1000];
+extern char outfile[1000];
 
 void printprompt();
+void prompt2();
 void execute_cd(char **comm);
 void statuss(int idd, int flag);
 char **split_input1(char *line);

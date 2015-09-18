@@ -1,5 +1,10 @@
 #include "header.h"
 
+
+int in_re=0;
+int out_re=0;
+
+// prints hostname and login
 void printprompt()
 {
 	char hostname[HOST_NAME_MAXX+1];
@@ -15,6 +20,30 @@ void printprompt()
 	// <username>@<hostname>:)
 	fprintf( stdout, "%s@%s:", login, hostname);
 	fflush( stdout );
+}
+// prints current directory
+void prompt2()
+{
+	int i,l1,l2,length;
+	char array[1000]="";
+    char tilda[2]={'~','\0'};
+    if(getcwd(array, sizeof(array))!=NULL)
+				{
+					length=strcmp(home,array);
+					if(length==0)
+						printf("~>");
+					else if(length>0)
+						printf("%s>",array);
+					else
+					{
+						l1=strlen(home);
+						l2=strlen(array);
+						printf("~");
+						for(i=l1;i<l2;i++)
+							printf("%c",array[i]);
+						printf(">");
+					}
+    			}
 }
 
 char *get_input(void)
@@ -52,8 +81,6 @@ char *get_input(void)
 				exit(EXIT_FAILURE);
 			}
 		}
-	//	else
-	//		break;
 	}
 }
 
@@ -62,6 +89,9 @@ char **split_input2(char *line)
 	char **tokens=malloc(TOKEN_LIMIT * sizeof(char*));
 	char *token;
 	int token_limit;
+	int i,len;
+	in_re=0;
+	out_re=0;
 	token_limit=TOKEN_LIMIT;
 	pos=0;
 	if(!tokens)
@@ -69,7 +99,6 @@ char **split_input2(char *line)
 		fprintf(stderr,"myshell: allocation error\n");
 		exit(EXIT_FAILURE);
 	}
-//	printf("split: %s\n",args_copy[0]);
 	token=strtok(line, DELIM);
 	back_mark=0;
 	while(token!=NULL)
@@ -79,7 +108,52 @@ char **split_input2(char *line)
 			back_mark=1;
 			break;
 		}
-		tokens[pos]=token;
+		else if(strcmp(token,"<")==0)
+		{
+			in_re=1;
+			token=strtok(NULL, DELIM);
+			if(token!=NULL)
+			{
+				strcpy(infile,token);
+				token=strtok(NULL, DELIM);
+				if(token!=NULL)
+				{
+					if(strcmp(token,">")==0)
+					{
+						out_re=1;
+						token=strtok(NULL, DELIM);
+						if(token!=NULL)
+						{
+							strcpy(outfile,token);
+						}
+					}
+				}
+			}
+		}
+		else if(strcmp(token,">")==0)
+		{
+			out_re=1;
+			token=strtok(NULL, DELIM);
+			if(token!=NULL)
+			{
+				strcpy(outfile,token);
+				token=strtok(NULL, DELIM);
+				if(token!=NULL)
+				{
+					if(strcmp(token,"<")==0)
+					{
+						in_re=1;
+						token=strtok(NULL, DELIM);
+						if(token!=NULL)
+						{
+							strcpy(infile,token);
+						}
+					}
+				}
+			}
+		}
+		else
+		{tokens[pos]=token;
 		pos++;	
 		if (pos>=token_limit)
 		{
@@ -91,9 +165,9 @@ char **split_input2(char *line)
 				exit(EXIT_FAILURE);
 			}
 		}
+		}
 		token=strtok(NULL, DELIM);
 	}
-	tokens[pos]=NULL;
 	return tokens;
 }
 
@@ -133,7 +207,6 @@ char **split_input3(char *line)
 		token=strtok(NULL, PIPE_DELIM);
 	}
 	tokens[ind]=NULL;
-//	printf("ind_parse: %d\n",ind);
 	return tokens;
 }
 
@@ -176,6 +249,10 @@ void loop_pipe(char **line)
 	int i;
 	char **arg1;
 	pid_t pid;
+	in_re=0;
+	out_re=0;
+	int fdin;
+	int fdout;
 	int in, fd[2];
 	in=0;
 
@@ -186,37 +263,52 @@ void loop_pipe(char **line)
 		close(fd[1]);
 		in=fd[0];
 	}
+
 	if(in!=0)
-		dup2(in,0);
-//	pid=fork();
-//	if(pid==0)
-//	{
+		dup2(in,STDIN_FILENO);
+
 		arg1=split_input2(line[i]);
 		if(back_mark==1)
 		{
-//			printf("background\n");
 			setpgid(0,0);
 			if(execvp(args[0],args)<0)
 				perror("myshell");
 			exit(EXIT_FAILURE);
 		}	
 		else
-		{if(strcmp(arg1[0],pinfoo)==0)
-			execute_pinfo(arg1);
-		else
 		{
-			if(execvp(arg1[0],arg1)<0)	
-				perror("myshell");
-			exit(EXIT_FAILURE);
-		}}
-//	}
-//	else
-//		wait(NULL);
+			if(in_re)
+			{
+				fdin=open(infile,O_RDONLY);
+				in_re=0;
+				dup2(fdin, STDIN_FILENO);
+				close(fdin);
+			}
+			if(out_re)
+			{
+				fdout=open(outfile,O_WRONLY|O_CREAT,0666);
+				out_re=0;
+				dup2(fdout, STDOUT_FILENO);
+				close(fdout);
+			}
+
+			if(strcmp(arg1[0],pinfoo)==0)
+				execute_pinfo(arg1);
+			else
+			{
+				if(execvp(arg1[0],arg1)<0)	
+					perror("myshell");
+				exit(EXIT_FAILURE);
+			}
+		}
+
 }
 
 int pipe_func(int in, int out, char *line)
 {
 	pid_t pid;
+	int fdin;
+	int fdout;
 	char **arg1;
 	if((pid=fork())==0)
 	{
@@ -232,6 +324,22 @@ int pipe_func(int in, int out, char *line)
 		}
 		arg1=split_input2(line);
 	
+		if(in_re)
+		{
+			//		printf("inre\n");
+			fdin=open(infile,O_RDONLY);
+			in_re=0;
+			dup2(fdin, STDIN_FILENO);
+			close(fdin);
+		}
+		if(out_re)
+		{
+			fdout=open(outfile,O_WRONLY|O_CREAT,0666);
+			out_re=0;
+			dup2(fdout, STDOUT_FILENO);
+			close(fdout);
+		}
+
 		if(strcmp(arg1[0],pinfoo)==0)
 			execute_pinfo(arg1);
 		else
@@ -247,7 +355,6 @@ int pipe_func(int in, int out, char *line)
 void execute_pinfo(char **line)
 {
 	int ii;
-	//args=split_input2(args[0]);
 	if(line[1]==NULL)
 		ii=getpid();
 	else
@@ -258,8 +365,6 @@ void execute_pinfo(char **line)
 
 void execute_echoo(char **comm)
 {
-//	if(args[1]==NULL)
-//		continue;
 	int i,start,end,j,l;
 	for(i=1;i<pos;i++)
 		{
@@ -309,6 +414,8 @@ void execute_internal(int fl)
 		else
 			perror("myshell");
 	}
+	else if(strcmp(args[0],quitt)==0)
+		exit(0);
 	else
 		printf("command not found\n");
 }
@@ -354,21 +461,15 @@ void statuss(int idd,int flag)
 	char pathexe[1000];
 	sprintf(path,"/proc/%d/status",idd);
 	sprintf(pathexe,"/proc/%d/smaps",idd);
-//	printf("flag: %d\n",flag);
-	if((fp = fopen(path,"r"))){
-	//	printf("if\n");
+	if((fp = fopen(path,"r")))
+	{
 		fgets(buf, BUFFERSIZE, fp);
 		fgets(buf, BUFFERSIZE, fp);
 		if(flag==1)
 			sscanf(buf,"State:\t%s",status);
 		else
 		{
-	//		printf("else\n");
 			sscanf(buf,"Name:\t%s",name);
-	//		printf("name: %s\n",name);
-		}
-	//	printf("name: %s\n",name);
-//		printf("buff: %s",buf);	
 		if(flag==0)
 			printf("%s ",name);
 		else
@@ -392,28 +493,24 @@ void statuss(int idd,int flag)
 			sscanf(buf,"%s[^\n]",s1);
 			len=strlen(s1);
 			t=0;
-		//	printf("s1: %s\n",s1);
 			for(t=0;t<len;t++)
 			{
 				if(s1[t]=='/')
 					break;
 			}
 			if(t<len)
-			{	printf("Executable: ");
-			//	printf("%c\n",s1[t]);
-			while(t<len)
-			{
-				if(ispunct(s1[t])==0 && isalnum(s1[t])==0)
-					break;
-				else
-					printf("%c",s1[t]);
-				t++;
-			}
+			{	
+				while(t<len)
+				{
+					if(ispunct(s1[t])==0 && isalnum(s1[t])==0)
+						break;
+					else
+						printf("%c",s1[t]);
+					t++;
+				}
 			printf("\n");
 			}
-		//	else
-		//		printf("hello\n");
-
+		}
 		}
 	}
 }
