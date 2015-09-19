@@ -20,19 +20,9 @@ void loop_pipe(char **line)
 		in=fd[0];
 	}
 
-	if(in!=0)
-		dup2(in,STDIN_FILENO);
-
 	arg1=split_input2(line[i]);
-	if(back_mark==1)
-	{
-		setpgid(0,0);
-		if(execvp(args[0],args)<0)
-			perror("myshell");
-		exit(EXIT_FAILURE);
-	}	
-		else
-	{
+		if(in!=0)
+			dup2(in,STDIN_FILENO);
 		if(in_re)
 		{
 			fdin=open(infile,O_RDONLY);
@@ -52,14 +42,14 @@ void loop_pipe(char **line)
 			execute_pinfo(arg1);
 		else if(strcmp(arg1[0],jobss)==0)
 			execute_jobs();
+		else if(strcmp(arg1[0],over)==0)
+			execute_overkill();
 		else
 		{
 			if(execvp(arg1[0],arg1)<0)	
 				perror("myshell");
 			exit(EXIT_FAILURE);
 		}
-	}
-
 }
 
 

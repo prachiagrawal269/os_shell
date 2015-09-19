@@ -1,6 +1,6 @@
 #include "header.h"
 
-// prints hostname and login
+// prints prompt
 void printprompt()
 {
 	char hostname[HOST_NAME_MAXX+1];
@@ -15,12 +15,6 @@ void printprompt()
 
 	// <username>@<hostname>:)
 	fprintf( stdout, "%s@%s:", login, hostname);
-	fflush( stdout );
-}
-
-// prints current directory
-void prompt2()
-{
 	int i,l1,l2,length;
 	char array[1000]="";
 	char tilda[2]={'~','\0'};
@@ -41,6 +35,7 @@ void prompt2()
 			printf(">");
 		}
 	}
+	fflush( stdout );
 }
 
 //get input from the user

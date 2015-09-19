@@ -6,6 +6,7 @@
 
 back_info back_job[50];
 int back_index=0; 
+int over_mark=0;
 char *prompt;
 int flag;
 char *input_str;
@@ -25,6 +26,7 @@ int st[1000001];
 char home[1024];
 char cd[3] = {'c', 'd', '\0'};
 char exitt[5]={'e','x','i','t','\0'};
+char over[9]={'o','v','e','r','k','i','l','l','\0'};
 char echoo[5]={'e','c','h','o','\0'};
 char jobss[5]={'j','o','b','s','\0'};
 char pinfoo[6]={'p','i','n','f','o','\0'};
@@ -32,46 +34,11 @@ char pwdd[4]={'p','w','d','\0'};
 char quitt[5]={'q','u','i','t','\0'};
 char pathh[1000];
 
-void signalHandler(int signal)
-{
-	int status,i;
-	pid_t pid;
-	if (signal==SIGCHLD) 
-	{
-		while ((pid=waitpid(-1, &status, WNOHANG))> 0)
-		{
-			printf("\n");
-			//		statuss(pid,0);
-			//		backexit=1; 
-			for(i=0;i<back_index;i++)
-			{
-				if((int)(back_job[i].pro_id)==pid)
-				{
-					back_job[i].back_active=0;
-					break;
-				}
-			}
-			if(WIFEXITED(status))
-			{   				
-				printf("%s with pid %d terminated with exit status: ",back_job[i].processname,pid);
-				printf("%d\n",WEXITSTATUS(status));
-			}
-			else
-				printf("%s with pid %d not exited normally\n",back_job[i].processname, pid);
-
-			printprompt();
-			//	prompt2();
-		}
-	}
-}
-
 int main(int argc, char *argv[])
 {
 	//struct rusage usage; 
-	int status,i,l,j,ii;
-	int start,end;
+	int status,i,l,j,ii,length,l1,l2,controld,start,end;;
 	char *input_str;
-	int l1,l2;
 	char c;
 	int internal=0;
 	char **ncomms;
@@ -79,7 +46,10 @@ int main(int argc, char *argv[])
 	char prompt[1000];
 	char user[100],host[100];
 	pid_t pid;
-	int length;
+	controld=0;
+	// handle sigint with hello
+	signal(SIGINT, SIG_IGN);
+
 	if(getcwd(home, sizeof(home))!=NULL)
 	{	
 		while(1)
@@ -89,17 +59,17 @@ int main(int argc, char *argv[])
 			//		back_index=0;
 			flag=0;
 			//		printf("<prachi@LenovoG500s");
-			printprompt();
-			//	printf("back: %d",back_index);
-
+			if(controld==0)
+				printprompt();
+			controld=0;
 			for(i=0;i<1000;i++)
 				prompt[i]='\0';
 
 			if(getcwd(prompt, sizeof(prompt))!=NULL)
 			{
-				prompt2();
 				input_str=get_input();
-				i=0;
+				if(input_str[0]!='\0')
+				{i=0;
 				ncomms=split_input3(input_str,1);
 				position=ind;
 				while(position--)
@@ -137,6 +107,7 @@ int main(int argc, char *argv[])
 									waitpid(pid,&status, WUNTRACED);
 								else
 								{
+									signal(SIGCHLD, childhandler);
 									strcpy(copy,args[0]);
 									len=strlen(copy);
 									copy[len-1]='\0';
@@ -145,8 +116,9 @@ int main(int argc, char *argv[])
 									back_job[back_index].pro_id=pid;
 									back_job[back_index].back_active=1;
 									back_index++;
+									back_mark=0;
 
-									signal(SIGCHLD,signalHandler);	
+										
 									// storing background processes data(pid , name) into an array
 									printf("%d\n",pid);
 								}
@@ -163,6 +135,9 @@ int main(int argc, char *argv[])
 				}
 				free(input_str);
 				free(args);
+			}
+			else
+				controld=1;
 			}
 			else
 				perror("myshell:");

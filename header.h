@@ -1,6 +1,7 @@
 /* file containing all the required header files */
 #ifndef header_h
 #define header_h
+#include "signal1.h"
 
 #include <string.h>
 #include <sys/types.h>
@@ -46,6 +47,7 @@ extern char cd[3];
 extern char **args;
 extern char exitt[5];
 extern char quitt[5];
+extern char over[9];
 extern char echoo[5];
 extern char pinfoo[6];
 extern char pwdd[4];
@@ -56,9 +58,9 @@ extern int out_re;
 extern char infile[1000];
 extern char outfile[1000];
 extern int back_index; 
+extern int over_mark;
 
 void printprompt();
-void prompt2();
 void execute_cd(char **comm);
 void statuss(int idd, int flag);
 char **split_input2(char *line);
@@ -69,5 +71,5 @@ void loop_pipe(char **args);
 int pipe_func(int in, int out, char *line);
 void execute_pinfo(char **line);
 void execute_jobs();
-
+void execute_overkill();
 #endif

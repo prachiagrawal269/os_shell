@@ -3,16 +3,35 @@
 // excute jobs command
 void execute_jobs()
 {
-	int i;	
+	int i,count;
+	count=0;	
 	for(i=0;i<back_index;i++)
 	{
 		if(back_job[i].back_active==1)
 		{
-			printf("[%d]  ",i+1);
+			count++;
+			printf("[%d]  ",count);
 			printf("%s  ",back_job[i].processname);
 			printf("[%d]\n",back_job[i].pro_id);
 		}
 	}
+}
+
+void execute_overkill()
+{
+//	pid_t pid;
+	int i;
+	for(i=0;i<back_index;i++)
+	{
+		over_mark=0;
+		if((back_job[i].back_active)==1)
+		{
+			over_mark=1;
+			back_job[i].back_active=0;
+			kill(back_job[i].pro_id, SIGKILL);
+		//	printf("over: %d",over_mark);
+		}
+	}	
 }
 
 void statuss(int idd,int flag)
