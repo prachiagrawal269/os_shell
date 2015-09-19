@@ -264,6 +264,7 @@ void loop_pipe(char **line)
 		in=fd[0];
 	}
 
+//	printf("yo\n");
 	if(in!=0)
 		dup2(in,STDIN_FILENO);
 
@@ -294,6 +295,8 @@ void loop_pipe(char **line)
 
 			if(strcmp(arg1[0],pinfoo)==0)
 				execute_pinfo(arg1);
+			else if(strcmp(arg1[0],jobss)==0)
+				execute_jobs();
 			else
 			{
 				if(execvp(arg1[0],arg1)<0)	
@@ -342,6 +345,8 @@ int pipe_func(int in, int out, char *line)
 
 		if(strcmp(arg1[0],pinfoo)==0)
 			execute_pinfo(arg1);
+		else if(strcmp(arg1[0],jobss)==0)
+			execute_jobs();
 		else
 		{
 			if(execvp(arg1[0],arg1)<0)
@@ -361,6 +366,20 @@ void execute_pinfo(char **line)
 		ii=atoi(line[1]);
 	statuss(ii,1);
 
+}
+
+void execute_jobs()
+{
+	int i;	
+	for(i=0;i<back_index;i++)
+	{
+		if(back_job[i].back_active==1)
+		{
+			printf("[%d]  ",i+1);
+			printf("%s  ",back_job[i].processname);
+			printf("[%d]\n",back_job[i].pro_id);
+		}
+	}
 }
 
 void execute_echoo(char **comm)
@@ -440,9 +459,6 @@ void execute_cd(char **comm)
 			perror("myshell:");
 	}
 }
-
-
-
 
 void statuss(int idd,int flag)
 {

@@ -26,6 +26,15 @@
 #define HOST_NAME_MAXX 255
 #define LOGIN_NAME_MAXX 50
 
+struct back_info{
+
+	char processname[400];
+	int pro_id;
+	int back_active;
+};
+
+typedef struct back_info back_info;
+back_info back_job[50];
 
 extern int back_mark;
 extern int position;
@@ -40,11 +49,13 @@ extern char quitt[5];
 extern char echoo[5];
 extern char pinfoo[6];
 extern char pwdd[4];
+extern char jobss[5];
 extern char pathh[1000];
 extern int in_re;
 extern int out_re;
 extern char infile[1000];
 extern char outfile[1000];
+extern int back_index; 
 
 void printprompt();
 void prompt2();
@@ -58,5 +69,6 @@ void execute_internal(int fl);
 void loop_pipe(char **args);
 int pipe_func(int in, int out, char *line);
 void execute_pinfo(char **line);
+void execute_jobs();
 
 #endif
