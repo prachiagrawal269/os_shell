@@ -39,31 +39,29 @@ void signalHandler(int signal)
 	if (signal==SIGCHLD) 
 	{
 		while ((pid=waitpid(-1, &status, WNOHANG))> 0)
-    	{
-    		printf("\n");
-    //		statuss(pid,0);
-    //		backexit=1; 
-    		for(i=0;i<back_index;i++)
-    		{
-    		//	printf("pro_id: %d\n",back_job[i].pro_id);
-    		//	printf("pid: %d\n",pid);
-    			if((int)(back_job[i].pro_id)==pid)
-    			{
-    				back_job[i].back_active=0;
-    				break;
-    			}
-    		}
-    		if(WIFEXITED(status))
-    		{   				
-    			printf("%s with pid %d terminated with exit status: ",back_job[i].processname,pid);
-    			printf("%d\n",WEXITSTATUS(status));
-    		}
-    		else
-    			printf("%s with pid %d not exited normally\n",back_job[i].processname, pid);
-    		
-    		printprompt();
-    	//	prompt2();
-    	}
+		{
+			printf("\n");
+			//		statuss(pid,0);
+			//		backexit=1; 
+			for(i=0;i<back_index;i++)
+			{
+				if((int)(back_job[i].pro_id)==pid)
+				{
+					back_job[i].back_active=0;
+					break;
+				}
+			}
+			if(WIFEXITED(status))
+			{   				
+				printf("%s with pid %d terminated with exit status: ",back_job[i].processname,pid);
+				printf("%d\n",WEXITSTATUS(status));
+			}
+			else
+				printf("%s with pid %d not exited normally\n",back_job[i].processname, pid);
+
+			printprompt();
+			//	prompt2();
+		}
 	}
 }
 
@@ -86,37 +84,32 @@ int main(int argc, char *argv[])
 	{	
 		while(1)
 		{
+			position=0;
 			backexit=0;
-	//		back_index=0;
+			//		back_index=0;
 			flag=0;
-	//		printf("<prachi@LenovoG500s");
+			//		printf("<prachi@LenovoG500s");
 			printprompt();
-		//	printf("back: %d",back_index);
-			
+			//	printf("back: %d",back_index);
+
 			for(i=0;i<1000;i++)
 				prompt[i]='\0';
-		
+
 			if(getcwd(prompt, sizeof(prompt))!=NULL)
 			{
 				prompt2();
-		/*		printf("back: %d",back_index);
-				for(i=0;i<back_index;i++)
-				{
-					printf("[%d]  ",i+1);
-					printf("%s  ",back_job[i].processname);
-					printf("[%d]\n",back_job[i].pro_id);
-				} */
 				input_str=get_input();
 				i=0;
-				ncomms=split_input1(input_str);
+				ncomms=split_input3(input_str,1);
+				position=ind;
 				while(position--)
 				{
 					internal=0;
 					// args contains the "pipe" parsed commands 
-					args=split_input3(ncomms[i]);
+					args=split_input3(ncomms[i],2);
 					if(args[0]!="\0");
 					{
-					// check for built in commands
+						// check for built in commands
 						if(args[0][0]=='c' && args[0][1]=='d')
 							internal=1;
 						else if(args[0][0]=='e' && args[0][1]=='x' && args[0][2]=='i' && args[0][3]=='t')
@@ -144,20 +137,18 @@ int main(int argc, char *argv[])
 									waitpid(pid,&status, WUNTRACED);
 								else
 								{
-										strcpy(copy,args[0]);
-										len=strlen(copy);
-										copy[len-1]='\0';
-										strcpy(back_job[back_index].processname,copy);
-							//		printf("args: %s",args[0]);
+									strcpy(copy,args[0]);
+									len=strlen(copy);
+									copy[len-1]='\0';
+									strcpy(back_job[back_index].processname,copy);
+									//		printf("args: %s",args[0]);
 									back_job[back_index].pro_id=pid;
 									back_job[back_index].back_active=1;
 									back_index++;
-									
+
 									signal(SIGCHLD,signalHandler);	
 									// storing background processes data(pid , name) into an array
 									printf("%d\n",pid);
-								
-						//			printf("back in: %d",back_index);
 								}
 							}
 						}
