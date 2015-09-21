@@ -1,12 +1,14 @@
 #include "header.h"
 
 // excute jobs command
+
 void execute_jobs()
 {
 	int i,count;
 	count=0;	
 	for(i=0;i<back_index;i++)
 	{
+			//printf("%d %d\n",back_job[i].pro_id,back_job[i].back_active);
 		if(back_job[i].back_active==1)
 		{
 			count++;
@@ -17,11 +19,61 @@ void execute_jobs()
 	}
 }
 
-void execute_overkill()
+int execute_fg(int job_no)
+{
+	int count=0;
+	int pid,status,i;
+	for(i=0;i<back_index;i++)
+	{
+		if(back_job[i].back_active==1)
+		{
+			count++;
+			if(count==job_no)
+			{
+				// bring process to foreground
+				pid=back_job[i].pro_id;
+				back_job[i].back_active=0;
+				return pid;
+			}
+		}
+	}
+	if(i==back_index)
+	{
+		printf("Error: No such process exists\n");
+		return -1;
+	}
+}
+
+void execute_kjob(int job_no, int signum)
+{
+	int count=0;
+	int pid,status,i;
+	for(i=0;i<back_index;i++)
+	{
+		if(back_job[i].back_active==1)
+		{
+			count++;
+			if(count==job_no)
+			{
+				pid=back_job[i].pro_id;
+				// excute according to the signal
+				kill(pid,signum);
+				break;
+			}
+
+		}
+	}
+	if(i==back_index)
+		printf("Error: No such process exists\n");
+}
+
+void execute_overkill(int pid)
 {
 //	pid_t pid;
 	int i;
-	for(i=0;i<back_index;i++)
+//	printf("entered overkill\n");
+	if(pid==-1)
+	{for(i=0;i<back_index;i++)
 	{
 		over_mark=0;
 		if((back_job[i].back_active)==1)
@@ -29,8 +81,8 @@ void execute_overkill()
 			over_mark=1;
 			back_job[i].back_active=0;
 			kill(back_job[i].pro_id, SIGKILL);
-		//	printf("over: %d",over_mark);
 		}
+	}
 	}	
 }
 

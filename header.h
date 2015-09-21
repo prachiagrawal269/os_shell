@@ -28,15 +28,15 @@
 #define LOGIN_NAME_MAXX 50
 
 struct back_info{
-
-	char processname[400];
 	int pro_id;
 	int back_active;
+	char processname[200];
 };
-
 typedef struct back_info back_info;
 back_info back_job[50];
 
+
+//extern char signum_to_name[30][10];
 extern int back_mark;
 extern int position;
 extern int pos;
@@ -59,6 +59,7 @@ extern char infile[1000];
 extern char outfile[1000];
 extern int back_index; 
 extern int over_mark;
+extern int shell_pgid;
 
 void printprompt();
 void execute_cd(char **comm);
@@ -71,5 +72,9 @@ void loop_pipe(char **args);
 int pipe_func(int in, int out, char *line);
 void execute_pinfo(char **line);
 void execute_jobs();
-void execute_overkill();
+void execute_overkill(int pid);
+int execute_fg(int job_no);
+void execute_kjob(int job_no, int signum);
+
+
 #endif

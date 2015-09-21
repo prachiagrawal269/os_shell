@@ -12,4 +12,5 @@
 #define SIGKILL 9       /* kill (cannot be caught or ignored) */
 
 void childhandler(int signal);
+//void createsignal();
 #endif

@@ -1,13 +1,11 @@
 #include "header.h"
-#define MAXX_INPUT 1024
-#define DELIM " \t\r\n\a"
-#define TOKEN_LIMIT 1000
-#define PARSE_DELIM ";"
+
 
 back_info back_job[50];
 int back_index=0; 
 int over_mark=0;
 char *prompt;
+//char **signum_to_name;
 int flag;
 char *input_str;
 int back_mark=0;
@@ -18,6 +16,7 @@ int position=0;
 int backexit=0;
 int in_re;
 int out_re;
+int shell_pgid;
 char infile[1000];
 char outfile[1000];
 char **args;
@@ -37,16 +36,25 @@ char pathh[1000];
 int main(int argc, char *argv[])
 {
 	//struct rusage usage; 
-	int status,i,l,j,ii,length,l1,l2,controld,start,end;;
+	int status,i,l,j,ii,length,l1,l2,controld,start,end,bpid;
 	char *input_str;
 	char c;
 	int internal=0;
+	int job_no;
 	char **ncomms;
 	char **args_copy;
 	char prompt[1000];
 	char user[100],host[100];
 	pid_t pid;
 	controld=0;
+	//createsignal();
+	shell_pgid=getpid();
+	if (setpgid (shell_pgid, shell_pgid) < 0)
+    {
+        perror ("Couldn't put the shell in its own process group");
+        exit (1);
+    }
+
 	// handle sigint with hello
 	signal(SIGINT, SIG_IGN);
 
@@ -74,6 +82,7 @@ int main(int argc, char *argv[])
 				position=ind;
 				while(position--)
 				{
+				//	printf("pid: %d\n",shell_pgid);
 					internal=0;
 					// args contains the "pipe" parsed commands 
 					args=split_input3(ncomms[i],2);
@@ -103,10 +112,29 @@ int main(int argc, char *argv[])
 								perror("myshell");
 							else 
 							{
+								if(args[0][0]=='f' && args[0][1]=='g')
+								{
+								//	printf("yes fg\n");
+									args=split_input2(args[0]);
+									job_no=atoi(args[1]);
+									bpid=execute_fg(job_no);
+									if(bpid!=-1)
+									{
+									//	printf("back_pid: %d\n",bpid);
+										signal(SIGTTOU, SIG_IGN);
+										if(tcsetpgrp(STDIN_FILENO,bpid)!=0)
+											perror("myshell: ");
+										kill(bpid, SIGCONT);
+										waitpid(bpid,&status,WCONTINUED);
+										if(tcsetpgrp(STDIN_FILENO, shell_pgid)!=0)
+											perror("myshell: ");
+									}
+								}
+
 								if(back_mark!=1)
 									waitpid(pid,&status, WUNTRACED);
 								else
-								{
+							    {
 									signal(SIGCHLD, childhandler);
 									strcpy(copy,args[0]);
 									len=strlen(copy);
@@ -116,11 +144,10 @@ int main(int argc, char *argv[])
 									back_job[back_index].pro_id=pid;
 									back_job[back_index].back_active=1;
 									back_index++;
-									back_mark=0;
-
-										
+									back_mark=0;										
 									// storing background processes data(pid , name) into an array
 									printf("%d\n",pid);
+
 								}
 							}
 						}

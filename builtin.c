@@ -51,7 +51,7 @@ void execute_echoo(char **comm)
 
 void execute_internal(int fl)
 {
-
+	int job_no;
 	if(strcmp(args[0],cd)==0)
 	{
 		execute_cd(args);
