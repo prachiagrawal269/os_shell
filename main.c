@@ -16,6 +16,7 @@ int position=0;
 int backexit=0;
 int in_re;
 int out_re;
+int append;
 int shell_pgid;
 char infile[1000];
 char outfile[1000];

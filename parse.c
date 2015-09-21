@@ -9,6 +9,7 @@ char **split_input2(char *line)
 	int i,len;
 	in_re=0;
 	out_re=0;
+	append=0;
 	token_limit=TOKEN_LIMIT;
 	pos=0;
 	if(!tokens)
@@ -47,9 +48,12 @@ char **split_input2(char *line)
 				}
 			}
 		}
-		else if(strcmp(token,">")==0)
+		else if((strcmp(token,">")==0) || (strcmp(token,">>")==0))
 		{
-			out_re=1;
+			if(strcmp(token,">")==0)
+				out_re=1;
+			else
+				append=1;
 			token=strtok(NULL, DELIM);
 			if(token!=NULL)
 			{

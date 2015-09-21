@@ -55,6 +55,7 @@ extern char jobss[5];
 extern char pathh[1000];
 extern int in_re;
 extern int out_re;
+extern int append;
 extern char infile[1000];
 extern char outfile[1000];
 extern int back_index; 

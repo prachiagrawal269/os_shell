@@ -23,6 +23,8 @@ void loop_pipe(char **line)
 	arg1=split_input2(line[i]);
 	if(back_mark==1)
 		setpgid(0,0);
+//	printf("append: %d\n",append);
+//	printf("out: %s\n",outfile);
 		if(in!=0)
 			dup2(in,STDIN_FILENO);
 		if(in_re)
@@ -36,6 +38,13 @@ void loop_pipe(char **line)
 		{
 			fdout=open(outfile,O_WRONLY|O_CREAT,0666);
 			out_re=0;
+			dup2(fdout, STDOUT_FILENO);
+			close(fdout);
+		}
+		if(append)
+		{
+			fdout=open(outfile,O_WRONLY|O_APPEND|O_CREAT,0666);
+			append=0;
 			dup2(fdout, STDOUT_FILENO);
 			close(fdout);
 		}
@@ -55,7 +64,6 @@ void loop_pipe(char **line)
 			exit(EXIT_FAILURE);
 		}
 }
-
 
 // this function is invoked to execute a command by creating a child process
 
@@ -89,6 +97,14 @@ int pipe_func(int in, int out, char *line)
 		{
 			fdout=open(outfile,O_WRONLY|O_CREAT,0666);
 			out_re=0;
+			dup2(fdout, STDOUT_FILENO);
+			close(fdout);
+		}
+		if(append)
+		{
+		//	printf("append\n");
+			fdout=open(outfile,O_WRONLY|O_APPEND|O_CREAT,0666);
+			append=0;
 			dup2(fdout, STDOUT_FILENO);
 			close(fdout);
 		}
