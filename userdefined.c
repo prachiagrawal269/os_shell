@@ -42,7 +42,7 @@ int execute_fg(int job_no)
 		printf("Error: No such process exists\n");
 		return -1;
 	}
-}
+} 
 
 void execute_kjob(int job_no, int signum)
 {

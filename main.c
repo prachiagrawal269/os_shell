@@ -100,7 +100,12 @@ int main(int argc, char *argv[])
 							internal=1;
 						else if(args[0][0]=='q' && args[0][1]=='u' && args[0][2]=='i' && args[0][3]=='t')
 							internal=1;
-						if(internal!=1)
+						else if(args[0][0]=='f' && args[0][1]=='g')
+						{
+						//	printf("fg\n");
+							internal=-1;
+						}
+						if(internal!=1 && internal!=-1)
 						{
 							int len;
 							len=strlen(args[0]);
@@ -113,25 +118,6 @@ int main(int argc, char *argv[])
 								perror("myshell");
 							else 
 							{
-								if(args[0][0]=='f' && args[0][1]=='g')
-								{
-								//	printf("yes fg\n");
-									args=split_input2(args[0]);
-									job_no=atoi(args[1]);
-									bpid=execute_fg(job_no);
-									if(bpid!=-1)
-									{
-									//	printf("back_pid: %d\n",bpid);
-										signal(SIGTTOU, SIG_IGN);
-										if(tcsetpgrp(STDIN_FILENO,bpid)!=0)
-											perror("myshell: ");
-										kill(bpid, SIGCONT);
-										waitpid(bpid,&status,WCONTINUED);
-										if(tcsetpgrp(STDIN_FILENO, shell_pgid)!=0)
-											perror("myshell: ");
-									}
-								}
-
 								if(back_mark!=1)
 									waitpid(pid,&status, WUNTRACED);
 								else
@@ -148,16 +134,29 @@ int main(int argc, char *argv[])
 									back_mark=0;										
 									// storing background processes data(pid , name) into an array
 									printf("%d\n",pid);
-
 								}
 							}
 						}
-						else
+						else if(internal==1)
 						{
 							args=split_input2(args[0]);
 							// if built-in commands
 							execute_internal(flag);
 						}  
+						else if(internal==-1)
+						{
+							// execute fg
+							pid_t fpid;
+							int status;
+							args=split_input2(args[0]);
+							fpid = execute_fg(atoi(args[1]));
+					//		printf("fpid: %d\n",fpid);
+							if(fpid>0)
+							{
+								kill(fpid, SIGCONT);
+								waitpid(fpid,&status,WCONTINUED);
+							}
+						} 
 					}	
 					i++;
 				}
